@@ -1,7 +1,10 @@
 # Covid-19 Model 🦠
 _Using Artificial Intelligence to model the Covid-19 pandemic_
 
-### Introduction 
+_This project is using [PyCX](https://github.com/hsayama/PyCX), revisioned by [Hiroki Sayama](https://github.com/hsayama)_
+
+
+### Introduction
 As part of the OsloMet Course: "ACIT4610: Evolutionary artificial intelligence and robotics", this project will try to create a realistic epidemic model based on complex system models.
 
 ### Project goal
