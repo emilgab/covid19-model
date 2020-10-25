@@ -32,10 +32,13 @@ class Agent:
         return str(Agent.counter)
 
     def infected_and_symptoms(self):
-        infected = random.choices([True, False],weights=(90,10))
-        develop_symptoms = random.choices([True, False],weights=(30.9,69.1))
+        infected = random.choices([True, False],weights=(50,50))[0]
+        if infected == True:
+            develop_symptoms = random.choices([True, False],weights=(30.9,69.1))[0]
+        else:
+            develop_symptoms = False
         symptoms = []
-        if infected and develop_symptoms:
+        if infected == True and develop_symptoms == True:
             for key,value in self.symptoms_on_covid.items():
                 symptoms.append(random.choices([key,None],weights=value)[0])
         return infected, symptoms
@@ -47,7 +50,7 @@ class Agent:
                 print(f"   {x2}: {y2}")
             print("")
 
-for i in range(6):
+for i in range(10):
     x = Agent()
 
 x.overview()
