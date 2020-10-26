@@ -24,6 +24,9 @@ class Agent:
                         "headache":(13.6,86.4),
                         }
 
+    percentage_wearing_mask = 50
+    percentage_infected = 50
+
     def __init__(self):
         '''
         Constructor function.
@@ -37,7 +40,7 @@ class Agent:
         self.gender = random.choice(["male","female"])
         self.name = "agent" + str(self.generate_unique_number().zfill(4))
         self.infected, self.symptoms = self.infected_and_symptoms()
-        self.mask = random.choice([True,False])
+        self.mask = random.choices([True, False],weights=(Agent.percentage_wearing_mask,(100-Agent.percentage_wearing_mask)))[0]
         Agent.agentdict[self.name] = {"gender":self.gender,"infected":bool(self.infected),"symptoms":", ".join(filter(None,self.symptoms)) if self.symptoms else "no","wears mask":"yes" if self.mask else "no","x":lbrandom(),"y":lbrandom()}
 
     def generate_unique_number(self):
@@ -54,7 +57,7 @@ class Agent:
         Calculates wether an agent is to be infected, and if so calculates if and which symptoms to appear.
         OUTPUT: (toople) returns a True/False value of infected and a list of symptoms (which is empty if not infected).
         '''
-        infected = random.choices([True, False],weights=(50,50))[0] # Indexing because random.choices() returns a list, we want to access the first element that is picked.
+        infected = random.choices([True, False],weights=(Agent.percentage_infected,100-Agent.percentage_infected))[0] # Indexing because random.choices() returns a list, we want to access the first element that is picked.
         # Because not everyone that is infected develop symptoms, we want to calculate the odds of developing symptoms if infected.
         if infected == True:
             develop_symptoms = random.choices([True, False],weights=(30.9,69.1))[0]
