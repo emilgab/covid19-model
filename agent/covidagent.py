@@ -41,7 +41,20 @@ class Agent:
         self.name = "agent" + str(self.generate_unique_number().zfill(4))
         self.infected, self.symptoms = self.infected_and_symptoms()
         self.mask = random.choices([True, False],weights=(Agent.percentage_wearing_mask,(100-Agent.percentage_wearing_mask)))[0]
-        Agent.agentdict[self.name] = {"gender":self.gender,"infected":bool(self.infected),"symptoms":", ".join(filter(None,self.symptoms)) if self.symptoms else "no","wears mask":"yes" if self.mask else "no","x":lbrandom(),"y":lbrandom()}
+        Agent.agentdict[self.name] = {
+                                        "gender":self.gender,
+                                        "infected":bool(self.infected),
+                                        "symptoms":", ".join(filter(None,self.symptoms)) if self.symptoms else "no",
+                                        "wears mask":"yes" if self.mask else "no",
+                                        "x":random.choice([0,1]),
+                                        "y":lbrandom(),
+                                        "direction_positive":False,
+                                        "direction_negative" :False,
+                                    }
+        if Agent.agentdict[self.name]["x"] == 1:
+            Agent.agentdict[self.name]["direction_positive"] = True
+        if Agent.agentdict[self.name]["x"] == 0:
+            Agent.agentdict[self.name]["direction_negative"] = True
 
     def generate_unique_number(self):
         '''
