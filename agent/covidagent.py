@@ -25,7 +25,7 @@ class Agent:
                         }
 
     percentage_wearing_mask = 50
-    percentage_infected = 50
+    percentage_infected = 25
 
     def __init__(self):
         '''
@@ -39,9 +39,22 @@ class Agent:
         '''
         self.gender = random.choice(["male","female"])
         self.name = "agent" + str(self.generate_unique_number().zfill(4))
-        self.infected, self.symptoms = self.infected_and_symptoms()
+        self.infected = random.choices([True, False],weights=(Agent.percentage_infected,100-Agent.percentage_infected))[0] # Indexing because random.choices() returns a list, we want to access the first element that is picked.
         self.mask = random.choices([True, False],weights=(Agent.percentage_wearing_mask,(100-Agent.percentage_wearing_mask)))[0]
-        Agent.agentdict[self.name] = {"gender":self.gender,"infected":bool(self.infected),"symptoms":", ".join(filter(None,self.symptoms)) if self.symptoms else "no","wears mask":"yes" if self.mask else "no","x":lbrandom(),"y":lbrandom()}
+        Agent.agentdict[self.name] = {
+                                        "gender":self.gender,
+                                        "infected":bool(self.infected),
+                                        "symptoms":", ".join(filter(None,self.infected_and_symptoms())) if self.infected_and_symptoms() else "no",
+                                        "wears mask":self.mask,
+                                        "x":random.choice([0,1]),
+                                        "y":lbrandom(),
+                                        "direction_positive":False,
+                                        "direction_negative" :False,
+                                    }
+        if Agent.agentdict[self.name]["x"] == 1:
+            Agent.agentdict[self.name]["direction_positive"] = True
+        if Agent.agentdict[self.name]["x"] == 0:
+            Agent.agentdict[self.name]["direction_negative"] = True
 
     def generate_unique_number(self):
         '''
@@ -57,19 +70,18 @@ class Agent:
         Calculates wether an agent is to be infected, and if so calculates if and which symptoms to appear.
         OUTPUT: (toople) returns a True/False value of infected and a list of symptoms (which is empty if not infected).
         '''
-        infected = random.choices([True, False],weights=(Agent.percentage_infected,100-Agent.percentage_infected))[0] # Indexing because random.choices() returns a list, we want to access the first element that is picked.
         # Because not everyone that is infected develop symptoms, we want to calculate the odds of developing symptoms if infected.
-        if infected == True:
+        if self.infected == True:
             develop_symptoms = random.choices([True, False],weights=(30.9,69.1))[0]
         else:
             develop_symptoms = False
         # Empty list which will be used to store symptoms if the agent is infected.
         symptoms = []
         # If our agent is infected and develops symptoms, we want to go over the probabilities of developing each symptom
-        if infected == True and develop_symptoms == True:
+        if self.infected == True and develop_symptoms == True:
             for key,value in self.symptoms_on_covid.items():
                 symptoms.append(random.choices([key,None],weights=value)[0])
-        return infected, symptoms
+        return symptoms
 
     def overview(self):
         '''
