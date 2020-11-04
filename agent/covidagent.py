@@ -44,8 +44,13 @@ class Agent:
         Agent.agentdict[self.name] = {
                                         "gender":self.gender,
                                         "infected":bool(self.infected),
+<<<<<<< HEAD
                                         "symptoms":", ".join(filter(None,self.infected_and_symptoms())) if self.infected_and_symptoms() else "no",
                                         "wears mask":self.mask,
+=======
+                                        "symptoms":", ".join(filter(None,self.symptoms)) if self.symptoms else "no",
+                                        "wears mask":"yes" if self.mask else "no",
+>>>>>>> 1b678b1d2a971639628017d7658a7137a76e9b17
                                         "x":random.choice([0,1]),
                                         "y":lbrandom(),
                                         "direction_positive":False,
