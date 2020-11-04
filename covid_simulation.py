@@ -6,13 +6,36 @@ from pylab import *
 from PyCX import pycxsimulator
 from random import choice as ranchoice, choices as ranchoices
 from operator import add, sub
+# imports for CLI
+import string
+import os
 
-n = 50 # number of agents
+
+n = 1 # frequency of spawning agents where 1 begin the most frequent
+c = n
 r = 0.1 # neighbourhood radius
-th = 0.5 # threshold for moving
+th = 0.3 # threshold for moving
+
+rows, columns = os.popen('stty size','r').read().split()
+
+print("\n"*int(rows))
+decorations = "--*-- ~ * ~ --*--"
+decorations = decorations.center(int(columns))
+hello = "The following outputs are the results of the simulation."
+hello = hello.center(int(columns))
+safe = "Stay safe and healthy."
+safe = safe.center(int(columns))
+covid = "🦠"
+covid = covid.center(int(columns))
+print(decorations)
+print(hello)
+print(safe)
+print(covid)
+print("-"*(int(columns)))
 
 def initialize():
     pass
+
 
 def observe():
     cla()
@@ -28,17 +51,28 @@ def observe():
     axis([0, 1, 0, 1])
 
 def update():
+    global n, c
     # ag = ranchoice(list(Agent.agentdict.keys()))
     for ag in list(Agent.agentdict.keys()):
-        neighbors = [nb for nb in Agent.agentdict if (Agent.agentdict[ag]["x"]-Agent.agentdict[nb]["x"])**2 + (Agent.agentdict[ag]["y"] - Agent.agentdict[nb]["y"])**2 < r**2 and nb != ag]
+        neighbors = [nb for nb in Agent.agentdict if (Agent.agentdict[ag]["x"]-Agent.agentdict[nb]["x"])**2 + (Agent.agentdict[ag]["y"] - Agent.agentdict[nb]["y"])**2 < r**2 and nb != ag and "dry cough" in Agent.agentdict[nb]["symptoms"]]
         if len(neighbors) > 0:
             q = len([nb for nb in neighbors if Agent.agentdict[nb]["infected"] == Agent.agentdict[ag]["infected"]]) \
             / float(len(neighbors))
             if q < th:
                 if Agent.agentdict[ag]["wears mask"] and Agent.agentdict[ag]["infected"] == False:
-                    Agent.agentdict[ag]["infected"] = ranchoices([True,False],weights=(((60/100)*30),(abs((60/100)*30-100))))[0]
+                    Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(((60/100)*30),(abs((60/100)*30-100))))[0]
+                    if result == True:
+                        print(f"\n{ag} got infected by and wore a mask")
+                        Agent.newly_infected += 1
+                        for x,y in Agent.agentdict[ag].items():
+                            print(f"   {x}: {y}")
                 elif Agent.agentdict[ag]["wears mask"] == False and Agent.agentdict[ag]["infected"] == False:
-                    Agent.agentdict[ag]["infected"] = ranchoices([True,False],weights=(30,70))[0]
+                    Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(30,70))[0]
+                    if result == True:
+                        print(f"\n{ag} got infected and did not wear a mask")
+                        Agent.newly_infected += 1
+                        for x,y in Agent.agentdict[ag].items():
+                            print(f"   {x}: {y}")
                 # Agent.agentdict[ag]["infected"] = True
                 # Agent.agentdict[ag]["symptoms"] = Agent.agentdict[ag]["symptoms"]
         try:
@@ -58,7 +92,14 @@ def update():
                     Agent.agentdict[ag]["y"] = rnd_op(Agent.agentdict[ag]["y"], 0.01)
         except:
             pass
-    ag = Agent()
-    #print(ag.overview())
+    if c%n == 0:
+        ag = Agent()
+    c+=1
 
 pycxsimulator.GUI().start(func=[initialize, observe, update])
+print("-"*(int(columns)))
+print(f"Total agents: {len(Agent.agentdict.keys())}")
+print(f"Total infected: {len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['infected'] == True])}")
+print(f"Total newly infected: {Agent.newly_infected}")
+print(f"Agents showing symptoms: {len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['symptoms'] != 'None'])}")
+print(f"Total healthy agents wearing masks and not getting infected: {len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['wears mask'] == True and Agent.agentdict[x]['infected'] == False])}")

@@ -27,6 +27,8 @@ class Agent:
     percentage_wearing_mask = 50
     percentage_infected = 25
 
+    newly_infected = 0
+
     def __init__(self):
         '''
         Constructor function.
@@ -44,7 +46,7 @@ class Agent:
         Agent.agentdict[self.name] = {
                                         "gender":self.gender,
                                         "infected":bool(self.infected),
-                                        "symptoms":", ".join(filter(None,self.infected_and_symptoms())) if self.infected_and_symptoms() else "no",
+                                        "symptoms":", ".join(filter(None,self.infected_and_symptoms())) if self.infected_and_symptoms() else "None",
                                         "wears mask":self.mask,
                                         "x":random.choice([0,1]),
                                         "y":lbrandom(),
