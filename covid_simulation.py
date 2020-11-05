@@ -57,32 +57,35 @@ def update():
     for ag in list(Agent.agentdict.keys()):
         neighbors = [nb for nb in Agent.agentdict if (Agent.agentdict[ag]["x"]-Agent.agentdict[nb]["x"])**2 + (Agent.agentdict[ag]["y"] - Agent.agentdict[nb]["y"])**2 < r**2 and nb != ag and "dry cough" in Agent.agentdict[nb]["symptoms"]]
         if len(neighbors) > 0:
-            if Agent.agentdict[ag]["wears mask"] and Agent.agentdict[ag]["infected"] == False:
-                Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(((60/100)*30),(abs((60/100)*30-100))))[0]
-                if result == True:
-                    print(f"\n{ag} got infected and wore a mask.")
-                    print(f"Possibly infected by {', '.join(neighbors)}")
-                    Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
-                    if Agent.agentdict[ag]["symptoms"] != "":
-                        print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
-                    else:
-                        print(f"No symptoms developed.")
-                    Agent.newly_infected += 1
-                    for x,y in Agent.agentdict[ag].items():
-                        print(f"   {x}: {y}")
-            elif Agent.agentdict[ag]["wears mask"] == False and Agent.agentdict[ag]["infected"] == False:
-                Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(30,70))[0]
-                if result == True:
-                    print(f"\n{ag} got infected and did not wear a mask")
-                    print(f"Possibly infected by {', '.join(neighbors)}")
-                    Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
-                    if Agent.agentdict[ag]["symptoms"] != "":
-                        print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
-                    else:
-                        print(f"No symptoms developed.")
-                    Agent.newly_infected += 1
-                    for x,y in Agent.agentdict[ag].items():
-                        print(f"   {x}: {y}")
+            if neighbors[0] not in Agent.agentdict[ag]["encountered infected"]:
+                print(neighbors[0])
+                Agent.agentdict[ag]["encountered infected"].append(neighbors[0])
+                if Agent.agentdict[ag]["wears mask"] and Agent.agentdict[ag]["infected"] == False:
+                    Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(((60/100)*30),(abs((60/100)*30-100))))[0]
+                    if result == True:
+                        print(f"\n{ag} got infected and wore a mask.")
+                        print(f"Possibly infected by {', '.join(neighbors)}")
+                        Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
+                        if Agent.agentdict[ag]["symptoms"] != "":
+                            print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
+                        else:
+                            print(f"No symptoms developed.")
+                        Agent.newly_infected += 1
+                        for x,y in Agent.agentdict[ag].items():
+                            print(f"   {x}: {y}")
+                elif Agent.agentdict[ag]["wears mask"] == False and Agent.agentdict[ag]["infected"] == False:
+                    Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(30,70))[0]
+                    if result == True:
+                        print(f"\n{ag} got infected and did not wear a mask")
+                        print(f"Possibly infected by {', '.join(neighbors)}")
+                        Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
+                        if Agent.agentdict[ag]["symptoms"] != "":
+                            print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
+                        else:
+                            print(f"No symptoms developed.")
+                        Agent.newly_infected += 1
+                        for x,y in Agent.agentdict[ag].items():
+                            print(f"   {x}: {y}")
 
         try:
             if Agent.agentdict[ag]["direction_positive"] == True:

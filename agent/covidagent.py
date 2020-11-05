@@ -52,6 +52,7 @@ class Agent:
                                         "y":lbrandom(),
                                         "direction_positive":False,
                                         "direction_negative" :False,
+                                        "encountered infected" :[],
                                     }
         if Agent.agentdict[self.name]["x"] == 1:
             Agent.agentdict[self.name]["direction_positive"] = True
