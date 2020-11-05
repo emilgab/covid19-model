@@ -16,7 +16,6 @@ from datetime import datetime
 n = 1 # frequency of spawning agents where 1 begin the most frequent
 c = n
 r = 0.1 # neighbourhood radius
-th = 0.3 # threshold for moving
 
 rows, columns = os.popen('stty size','r').read().split()
 
@@ -61,7 +60,13 @@ def update():
             if Agent.agentdict[ag]["wears mask"] and Agent.agentdict[ag]["infected"] == False:
                 Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(((60/100)*30),(abs((60/100)*30-100))))[0]
                 if result == True:
-                    print(f"\n{ag} got infected and wore a mask")
+                    print(f"\n{ag} got infected and wore a mask.")
+                    print(f"Possibly infected by {', '.join(neighbors)}")
+                    Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
+                    if Agent.agentdict[ag]["symptoms"] != "":
+                        print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
+                    else:
+                        print(f"No symptoms developed.")
                     Agent.newly_infected += 1
                     for x,y in Agent.agentdict[ag].items():
                         print(f"   {x}: {y}")
@@ -69,11 +74,16 @@ def update():
                 Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(30,70))[0]
                 if result == True:
                     print(f"\n{ag} got infected and did not wear a mask")
+                    print(f"Possibly infected by {', '.join(neighbors)}")
+                    Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
+                    if Agent.agentdict[ag]["symptoms"] != "":
+                        print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
+                    else:
+                        print(f"No symptoms developed.")
                     Agent.newly_infected += 1
                     for x,y in Agent.agentdict[ag].items():
                         print(f"   {x}: {y}")
-                # Agent.agentdict[ag]["infected"] = True
-                # Agent.agentdict[ag]["symptoms"] = Agent.agentdict[ag]["symptoms"]
+
         try:
             if Agent.agentdict[ag]["direction_positive"] == True:
                 if Agent.agentdict[ag]["x"] < 0:
@@ -112,13 +122,21 @@ print(f"Total healthy agents wearing masks and not getting infected: {final_data
 print("-"*(int(columns)))
 
 while True:
-    save_data = input("Do you want to save data on each of the agents in a JSON format? (data will be saved to the same location as the program) (y/n) ")
-    if save_data.lower()[0] == "y":
+    menu_items = input("\nMenu options:\n- Output data on every agent (show)\n- Store data as a JSON file in current path (json)\n- Continue simulation (con)\n- Exit (q)\n: ")
+    if menu_items.lower() == "show":
+        for x,y in Agent.agentdict.items():
+            print(f"{x}: ")
+            for x2,y2 in y.items():
+                print(f"   {x2}: {y2}")
+            print("")
+    elif menu_items.lower() == "con":
+        pycxsimulator.GUI().start(func=[initialize, observe, update])
+    elif menu_items.lower() == "json":
+        print("-"*(int(columns)))
         print("Writing JSON file...")
         filename = datetime.now().strftime("COV-19-results_%Y-%m-%d-%H-%M-%S")
         with open(f"{filename}.json", 'w') as f:
             json.dump(Agent.agentdict, f, indent=4)
         print("JSON file successfully saved!")
-        break
-    elif save_data.lower()[0] == "n":
+    elif menu_items.lower() == "q":
         break
