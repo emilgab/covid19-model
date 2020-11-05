@@ -17,6 +17,8 @@ n = 1 # frequency of spawning agents where 1 begin the most frequent
 c = n
 r = 0.1 # neighbourhood radius
 
+deleted_agents = {}
+
 rows, columns = os.popen('stty size','r').read().split()
 
 print("\n"*int(rows))
@@ -52,7 +54,7 @@ def observe():
     axis([0, 1, 0, 1])
 
 def update():
-    global n, c
+    global n, c, deleted_agents
     # ag = ranchoice(list(Agent.agentdict.keys()))
     for ag in list(Agent.agentdict.keys()):
         neighbors = [nb for nb in Agent.agentdict if (Agent.agentdict[ag]["x"]-Agent.agentdict[nb]["x"])**2 + (Agent.agentdict[ag]["y"] - Agent.agentdict[nb]["y"])**2 < r**2 and nb != ag and "dry cough" in Agent.agentdict[nb]["symptoms"]]
@@ -91,6 +93,7 @@ def update():
         try:
             if Agent.agentdict[ag]["direction_positive"] == True:
                 if Agent.agentdict[ag]["x"] < 0:
+                    deleted_agents[ag] = Agent.agentdict[ag]
                     del Agent.agentdict[ag]
                 Agent.agentdict[ag]["x"] -= 0.01
                 rnd_op = ranchoice([add, sub, None])
@@ -98,6 +101,7 @@ def update():
                     Agent.agentdict[ag]["y"] = rnd_op(Agent.agentdict[ag]["y"], 0.01)
             if Agent.agentdict[ag]["direction_negative"] == True:
                 if Agent.agentdict[ag]["x"] > 1:
+                    deleted_agents[ag] = Agent.agentdict[ag]
                     del Agent.agentdict[ag]
                 Agent.agentdict[ag]["x"] += 0.01
                 rnd_op = ranchoice([add, sub, None])
@@ -110,15 +114,19 @@ def update():
     c+=1
 
 pycxsimulator.GUI().start(func=[initialize, observe, update])
+merged_dictionaries = {**deleted_agents, **Agent.agentdict}
 def summary():
+    print("")
+    print("-"*(int(columns)))
+    print("Summary")
     print("-"*(int(columns)))
     final_data = {
                 "total_agents":Agent.counter,
-                "total_infected":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['infected'] == True]),
+                "total_infected":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['infected'] == True]),
                 "total_newly_infected":Agent.newly_infected,
-                "num_of_superspreaders":len([x for x in list(Agent.agentdict.keys()) if len(Agent.agentdict[x]["infected other agents"]) > 4]),
-                "developed_symptoms":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['symptoms'] != '']),
-                "total_healthy_wearing_masks":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['wears mask'] == True and Agent.agentdict[x]['infected'] == False])
+                "num_of_superspreaders":len([x for x in list(merged_dictionaries.keys()) if len(merged_dictionaries[x]["infected other agents"]) > 2]),
+                "developed_symptoms":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['symptoms'] != '']),
+                "total_healthy_wearing_masks":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['wears mask'] == True and merged_dictionaries[x]['infected'] == False])
                 }
     print(f"Total agents: {final_data['total_agents']}")
     print(f"Total infected: {final_data['total_infected']}")
@@ -130,9 +138,9 @@ def summary():
 summary()
 
 while True:
-    menu_items = input("\nMenu options:\n- Output data on every agent (show)\n- Store data as a JSON file in current path (json)\n- Show summary again (summary)\n- Continue simulation (con)\n- Exit (q)\n: ")
+    menu_items = input("Menu options:\n- Output data on every agent (show)\n- Store data as a JSON file in current path (json)\n- Show summary again (summary)\n- Continue simulation (con)\n- Exit (q)\n: ")
     if menu_items.lower() == "show":
-        for x,y in Agent.agentdict.items():
+        for x,y in merged_dictionaries.items():
             print(f"{x}: ")
             for x2,y2 in y.items():
                 print(f"   {x2}: {y2}")
@@ -140,14 +148,15 @@ while True:
     elif menu_items.lower() == "con":
         pycxsimulator.GUI().start(func=[initialize, observe, update])
     elif menu_items.lower() == "json":
+        print("")
         print("-"*(int(columns)))
         print("Writing JSON file...")
         filename = datetime.now().strftime("COV-19-results_%Y-%m-%d-%H-%M-%S")
         with open(f"{filename}.json", 'w') as f:
-            json.dump(Agent.agentdict, f, indent=4)
+            json.dump(merged_dictionaries, f, indent=4)
         print("JSON file successfully saved!")
+        print("-"*(int(columns)))
     elif menu_items.lower() == "summary":
-        print("")
         summary()
     elif menu_items.lower() == "q":
         break
