@@ -58,13 +58,13 @@ def update():
         neighbors = [nb for nb in Agent.agentdict if (Agent.agentdict[ag]["x"]-Agent.agentdict[nb]["x"])**2 + (Agent.agentdict[ag]["y"] - Agent.agentdict[nb]["y"])**2 < r**2 and nb != ag and "dry cough" in Agent.agentdict[nb]["symptoms"]]
         if len(neighbors) > 0:
             if neighbors[0] not in Agent.agentdict[ag]["encountered infected"]:
-                print(neighbors[0])
                 Agent.agentdict[ag]["encountered infected"].append(neighbors[0])
                 if Agent.agentdict[ag]["wears mask"] and Agent.agentdict[ag]["infected"] == False:
                     Agent.agentdict[ag]["infected"] = result = ranchoices([True,False],weights=(((60/100)*30),(abs((60/100)*30-100))))[0]
                     if result == True:
                         print(f"\n{ag} got infected and wore a mask.")
                         print(f"Possibly infected by {', '.join(neighbors)}")
+                        Agent.agentdict[neighbors[0]]["infected other agents"].append(ag)
                         Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
                         if Agent.agentdict[ag]["symptoms"] != "":
                             print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
@@ -78,6 +78,7 @@ def update():
                     if result == True:
                         print(f"\n{ag} got infected and did not wear a mask")
                         print(f"Possibly infected by {', '.join(neighbors)}")
+                        Agent.agentdict[neighbors[0]]["infected other agents"].append(ag)
                         Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
                         if Agent.agentdict[ag]["symptoms"] != "":
                             print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
@@ -109,23 +110,27 @@ def update():
     c+=1
 
 pycxsimulator.GUI().start(func=[initialize, observe, update])
-print("-"*(int(columns)))
-final_data = {
-            "total_agents":Agent.counter,
-            "total_infected":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['infected'] == True]),
-            "total_newly_infected":Agent.newly_infected,
-            "developed_symptoms":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['symptoms'] != '']),
-            "total_healthy_wearing_masks":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['wears mask'] == True and Agent.agentdict[x]['infected'] == False])
-            }
-print(f"Total agents: {final_data['total_agents']}")
-print(f"Total infected: {final_data['total_infected']}")
-print(f"Total newly infected: {final_data['total_newly_infected']}")
-print(f"Agents showing symptoms: {final_data['developed_symptoms']}")
-print(f"Total healthy agents wearing masks and not getting infected: {final_data['total_healthy_wearing_masks']}")
-print("-"*(int(columns)))
+def summary():
+    print("-"*(int(columns)))
+    final_data = {
+                "total_agents":Agent.counter,
+                "total_infected":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['infected'] == True]),
+                "total_newly_infected":Agent.newly_infected,
+                "num_of_superspreaders":len([x for x in list(Agent.agentdict.keys()) if len(Agent.agentdict[x]["infected other agents"]) > 4]),
+                "developed_symptoms":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['symptoms'] != '']),
+                "total_healthy_wearing_masks":len([x for x in list(Agent.agentdict.keys()) if Agent.agentdict[x]['wears mask'] == True and Agent.agentdict[x]['infected'] == False])
+                }
+    print(f"Total agents: {final_data['total_agents']}")
+    print(f"Total infected: {final_data['total_infected']}")
+    print(f"Total newly infected: {final_data['total_newly_infected']}")
+    print(f"Total superspreaders: {final_data['num_of_superspreaders']}")
+    print(f"Agents showing symptoms: {final_data['developed_symptoms']}")
+    print(f"Total healthy agents wearing masks and not getting infected: {final_data['total_healthy_wearing_masks']}")
+    print("-"*(int(columns)))
+summary()
 
 while True:
-    menu_items = input("\nMenu options:\n- Output data on every agent (show)\n- Store data as a JSON file in current path (json)\n- Continue simulation (con)\n- Exit (q)\n: ")
+    menu_items = input("\nMenu options:\n- Output data on every agent (show)\n- Store data as a JSON file in current path (json)\n- Show summary again (summary)\n- Continue simulation (con)\n- Exit (q)\n: ")
     if menu_items.lower() == "show":
         for x,y in Agent.agentdict.items():
             print(f"{x}: ")
@@ -141,5 +146,8 @@ while True:
         with open(f"{filename}.json", 'w') as f:
             json.dump(Agent.agentdict, f, indent=4)
         print("JSON file successfully saved!")
+    elif menu_items.lower() == "summary":
+        print("")
+        summary()
     elif menu_items.lower() == "q":
         break
