@@ -13,9 +13,12 @@ import os
 import json
 from datetime import datetime
 
-n = 1 # frequency of spawning agents where 1 begin the most frequent
-c = n
+f = 1 # frequency of spawning agents where 1 begin the most frequent
+c = f
 r = 0.1 # neighbourhood radius
+Agent.percentage_wearing_mask = 0
+Agent.percentage_infected = 5
+superspreader_treshold = 4
 
 deleted_agents = {}
 
@@ -35,6 +38,31 @@ print(hello)
 print(safe)
 print(covid)
 print("-"*(int(columns)))
+
+symptoms_on_covid = {"fever":(87.9,12.1),
+                    "dry cough":(67.7,32.3),
+                    "fatigue":(38.1,61.9),
+                    "sputum production":(33.4,66.6),
+                    "shortness of breath":(18.6,81.4),
+                    "myalgia":(14.8,85.2),
+                    "sore throat":(13.9,86.1),
+                    "headache":(13.6,86.4),
+                    }
+
+def infected_and_symptoms(agent_name):
+    '''
+    Calculates wether an agent is to be infected, and if so calculates if and which symptoms to appear.
+    OUTPUT: (toople) returns a True/False value of infected and a list of symptoms (which is empty if not infected).
+    '''
+    # Because not everyone that is infected develop symptoms, we want to calculate the odds of developing symptoms if infected.
+    develop_symptoms = ranchoices([True, False],weights=(100,0))[0]
+    # Empty list which will be used to store symptoms if the agent is infected.
+    symptoms = []
+    # If our agent is infected and develops symptoms, we want to go over the probabilities of developing each symptom
+    if develop_symptoms == True:
+        for key,value in symptoms_on_covid.items():
+            symptoms.append(ranchoices([key,None],weights=value)[0])
+    return symptoms
 
 def initialize():
     pass
@@ -68,6 +96,8 @@ def update():
                         print(f"Possibly infected by {', '.join(neighbors)}")
                         Agent.agentdict[neighbors[0]]["infected other agents"].append(ag)
                         Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
+                        symptom_function_results = infected_and_symptoms(ag)
+                        Agent.agentdict[ag]["symptoms"] = ", ".join(filter(None,symptom_function_results)) if symptom_function_results else ""
                         if Agent.agentdict[ag]["symptoms"] != "":
                             print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
                         else:
@@ -82,6 +112,8 @@ def update():
                         print(f"Possibly infected by {', '.join(neighbors)}")
                         Agent.agentdict[neighbors[0]]["infected other agents"].append(ag)
                         Agent.agentdict[ag]["infected by"] = ', '.join(neighbors)
+                        symptom_function_results = infected_and_symptoms(ag)
+                        Agent.agentdict[ag]["symptoms"] = ", ".join(filter(None,symptom_function_results)) if symptom_function_results else ""
                         if Agent.agentdict[ag]["symptoms"] != "":
                             print(f"{ag} developed the following symptoms: {Agent.agentdict[ag]['symptoms']}")
                         else:
@@ -109,7 +141,7 @@ def update():
                     Agent.agentdict[ag]["y"] = rnd_op(Agent.agentdict[ag]["y"], 0.01)
         except:
             pass
-    if c%n == 0:
+    if c%f == 0:
         ag = Agent()
     c+=1
 
@@ -124,7 +156,7 @@ def summary():
                 "total_agents":Agent.counter,
                 "total_infected":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['infected'] == True]),
                 "total_newly_infected":Agent.newly_infected,
-                "num_of_superspreaders":len([x for x in list(merged_dictionaries.keys()) if len(merged_dictionaries[x]["infected other agents"]) > 2]),
+                "num_of_superspreaders":len([x for x in list(merged_dictionaries.keys()) if len(merged_dictionaries[x]["infected other agents"]) > superspreader_treshold]),
                 "developed_symptoms":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['symptoms'] != '']),
                 "total_healthy_wearing_masks":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['wears mask'] == True and merged_dictionaries[x]['infected'] == False])
                 }

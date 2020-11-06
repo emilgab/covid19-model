@@ -24,8 +24,8 @@ class Agent:
                         "headache":(13.6,86.4),
                         }
 
-    percentage_wearing_mask = 50
-    percentage_infected = 25
+    percentage_wearing_mask = 0
+    percentage_infected = 0
 
     newly_infected = 0
 
@@ -46,7 +46,7 @@ class Agent:
         Agent.agentdict[self.name] = {
                                         "gender":self.gender,
                                         "infected":bool(self.infected),
-                                        "symptoms":", ".join(filter(None,self.infected_and_symptoms())) if self.infected_and_symptoms() else "",
+                                        "symptoms":"",
                                         "wears mask":self.mask,
                                         "x":random.choice([0,1]),
                                         "y":lbrandom(),
@@ -59,6 +59,8 @@ class Agent:
             Agent.agentdict[self.name]["direction_positive"] = True
         if Agent.agentdict[self.name]["x"] == 0:
             Agent.agentdict[self.name]["direction_negative"] = True
+        self.symptoms_results = self.infected_and_symptoms()
+        Agent.agentdict[self.name]["symptoms"] = ", ".join(filter(None,self.symptoms_results)) if self.symptoms_results else ""
 
     def generate_unique_number(self):
         '''
