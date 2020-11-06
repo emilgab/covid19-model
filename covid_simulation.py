@@ -16,8 +16,8 @@ from datetime import datetime
 f = 1 # frequency of spawning agents where 1 begin the most frequent
 c = f
 r = 0.1 # neighbourhood radius
-Agent.percentage_wearing_mask = 0
-Agent.percentage_infected = 5
+Agent.percentage_wearing_mask = 50
+Agent.percentage_infected = 2
 superspreader_threshold = 4
 
 deleted_agents = {}
@@ -55,7 +55,7 @@ def infected_and_symptoms(agent_name):
     OUTPUT: (toople) returns a True/False value of infected and a list of symptoms (which is empty if not infected).
     '''
     # Because not everyone that is infected develop symptoms, we want to calculate the odds of developing symptoms if infected.
-    develop_symptoms = ranchoices([True, False],weights=(100,0))[0]
+    develop_symptoms = ranchoices([True, False],weights=(30.9,69.1))[0]
     # Empty list which will be used to store symptoms if the agent is infected.
     symptoms = []
     # If our agent is infected and develops symptoms, we want to go over the probabilities of developing each symptom
