@@ -24,9 +24,9 @@ class Agent:
                         "headache":(13.6,86.4),
                         }
 
+    # Class attributes that contain the percentages of an agent wearing a mask, infected at initialisation and a counter that keeps track of newly infected.
     percentage_wearing_mask = 0
     percentage_infected = 0
-
     newly_infected = 0
 
     def __init__(self):
@@ -43,6 +43,7 @@ class Agent:
         self.name = "agent" + str(self.generate_unique_number().zfill(4))
         self.infected = random.choices([True, False],weights=(Agent.percentage_infected,100-Agent.percentage_infected))[0] # Indexing because random.choices() returns a list, we want to access the first element that is picked.
         self.mask = random.choices([True, False],weights=(Agent.percentage_wearing_mask,(100-Agent.percentage_wearing_mask)))[0]
+        # Creates a dictionary in our agentdict where the key is the name of the agent and the value is the following dictionary.
         Agent.agentdict[self.name] = {
                                         "gender":self.gender,
                                         "infected":bool(self.infected),
@@ -60,6 +61,8 @@ class Agent:
         if Agent.agentdict[self.name]["x"] == 0:
             Agent.agentdict[self.name]["direction_negative"] = True
         self.symptoms_results = self.infected_and_symptoms()
+        # Assigns a string with symptoms to the "symptoms" entry in the agents dictionary.
+        # The symptoms are returned from the function infected_and_symptoms()
         Agent.agentdict[self.name]["symptoms"] = ", ".join(filter(None,self.symptoms_results)) if self.symptoms_results else ""
 
     def generate_unique_number(self):
@@ -73,8 +76,8 @@ class Agent:
 
     def infected_and_symptoms(self):
         '''
-        Calculates wether an agent is to be infected, and if so calculates if and which symptoms to appear.
-        OUTPUT: (toople) returns a True/False value of infected and a list of symptoms (which is empty if not infected).
+        Determines if symptoms are to be developed in an infected agent.
+        OUTPUT: returns a list of symptoms (which is empty if no symptoms).
         '''
         # Because not everyone that is infected develop symptoms, we want to calculate the odds of developing symptoms if infected.
         if self.infected == True:
