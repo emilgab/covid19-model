@@ -13,11 +13,11 @@ import os
 import json
 from datetime import datetime
 
-f = 5 # frequency of spawning agents where 1 begin the most frequent
+f = 1 # frequency of spawning agents where 1 begin the most frequent
 c = f
 r = 0.1 # neighbourhood radius
 Agent.percentage_wearing_mask = 50
-Agent.percentage_infected = 2
+Agent.percentage_infected = 5
 superspreader_threshold = 4
 
 # Dictionary that contains the agents that are being deleted in the update function when an agent has crossed to the other side of our simulation
