@@ -86,16 +86,3 @@ class Agent:
             for key,value in self.symptoms_on_covid.items():
                 symptoms.append(random.choices([key,None],weights=value)[0])
         return symptoms
-
-    def overview(self):
-        '''
-        The overview function will print out information on every agent.
-        OUTPUT: This function does not return anything, it prints out information on each agent from the class attribute agentdict
-        '''
-        # Goes over the class attribute "agentdict" which contains info on each instance
-        # The name of the agent will then be printed out and we iterate over the values.
-        for x,y in Agent.agentdict.items():
-            print(f"{x}:")
-            for x2,y2 in y.items():
-                print(f"   {x2}: {y2}")
-            print("")
