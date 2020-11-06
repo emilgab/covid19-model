@@ -18,7 +18,7 @@ c = f
 r = 0.1 # neighbourhood radius
 Agent.percentage_wearing_mask = 0
 Agent.percentage_infected = 5
-superspreader_treshold = 4
+superspreader_threshold = 4
 
 deleted_agents = {}
 
@@ -156,7 +156,7 @@ def summary():
                 "total_agents":Agent.counter,
                 "total_infected":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['infected'] == True]),
                 "total_newly_infected":Agent.newly_infected,
-                "num_of_superspreaders":len([x for x in list(merged_dictionaries.keys()) if len(merged_dictionaries[x]["infected other agents"]) > superspreader_treshold]),
+                "num_of_superspreaders":len([x for x in list(merged_dictionaries.keys()) if len(merged_dictionaries[x]["infected other agents"]) > superspreader_threshold]),
                 "developed_symptoms":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['symptoms'] != '']),
                 "total_healthy_wearing_masks":len([x for x in list(merged_dictionaries.keys()) if merged_dictionaries[x]['wears mask'] == True and merged_dictionaries[x]['infected'] == False])
                 }
